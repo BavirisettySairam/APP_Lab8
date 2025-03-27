@@ -6,4 +6,3 @@ matplotlib
 wordcloud
 scikit-learn
 seaborn
-nltk_data
