@@ -9,7 +9,7 @@ import seaborn as sns
 from wordcloud import WordCloud
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from nltk.tokenize import word_tokenize
+from nltk.tokenize import word_tokenize, PunktTokenizer
 from nltk.stem import PorterStemmer
 import time
 
@@ -24,13 +24,16 @@ nltk.data.path.append(NLTK_PATH)
 
 # Download required datasets to the temporary directory
 try:
-    nltk.data.find('tokenizers/punkt')
-    print("Punkt tokenizer already downloaded.")
-except LookupError:
-    print("Downloading Punkt tokenizer...")
+    punkt_path = os.path.join(NLTK_PATH, 'tokenizers/punkt/english.pickle')
+    tokenizer = PunktTokenizer(punkt_path)
+    print("Punkt tokenizer loaded successfully.")
+except Exception as e:
+    print(f"Error loading Punkt tokenizer: {e}")
     nltk.download('punkt', download_dir=NLTK_PATH)
-    print("Punkt tokenizer downloaded successfully.")
-    time.sleep(1) #add a one second delay.
+    time.sleep(1)
+    punkt_path = os.path.join(NLTK_PATH, 'tokenizers/punkt/english.pickle')
+    tokenizer = PunktTokenizer(punkt_path)
+    print("Punkt tokenizer loaded successfully after download.")
 
 try:
     nltk.data.find('stopwords')
@@ -39,7 +42,7 @@ except LookupError:
     print("Downloading stopwords...")
     nltk.download('stopwords', download_dir=NLTK_PATH)
     print("stopwords downloaded successfully.")
-    time.sleep(1) #add a one second delay.
+    time.sleep(1)
 
 # Streamlit Page Configuration
 st.set_page_config(page_title="Lab 8", page_icon="📊", layout="centered")
@@ -55,7 +58,7 @@ FILE_TEXT2 = "text2.tsv"
 
 # Text Preprocessing function
 def preprocess_text(text):
-    if not isinstance(text, str) or not text.strip(): #check for empty or non string.
+    if not isinstance(text, str) or not text.strip():
         return ""
     text = text.lower()
     text = re.sub(r'[^a-zA-Z\s]', '', text)
