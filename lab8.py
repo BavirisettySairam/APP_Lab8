@@ -9,17 +9,17 @@ import seaborn as sns
 from wordcloud import WordCloud
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from nltk.tokenize import word_tokenize, PunktTokenizer
+from nltk.tokenize import word_tokenize, PunktSentenceTokenizer
 from nltk.stem import PorterStemmer
 import time
-import urllib.request # Import urllib to download file.
+import urllib.request
 
 # Set a temporary directory for NLTK data (works in Streamlit Cloud)
 NLTK_PATH = "/tmp/nltk_data"
 
 # Ensure the directory exists
 os.makedirs(NLTK_PATH, exist_ok=True)
-os.makedirs(os.path.join(NLTK_PATH, 'tokenizers/punkt'), exist_ok=True) #make sure the punkt folder exists.
+os.makedirs(os.path.join(NLTK_PATH, 'tokenizers/punkt'), exist_ok=True)
 
 # Append the path to nltk data
 nltk.data.path.append(NLTK_PATH)
@@ -35,11 +35,13 @@ try:
         print(f"english.pickle downloaded to: {punkt_path}")
     else:
         print(f"english.pickle already exists at: {punkt_path}")
-    
-    tokenizer = PunktTokenizer(punkt_path)
-    print("Punkt tokenizer loaded successfully.")
+
+    # Load the Punkt Sentence Tokenizer
+    sent_tokenizer = PunktSentenceTokenizer(punkt_path)
+    print("Punkt Sentence Tokenizer loaded successfully.")
+
 except Exception as e:
-    print(f"Error loading Punkt tokenizer: {e}")
+    print(f"Error loading Punkt Sentence Tokenizer: {e}")
 
 try:
     nltk.data.find('stopwords')
@@ -49,6 +51,20 @@ except LookupError:
     nltk.download('stopwords', download_dir=NLTK_PATH)
     print("stopwords downloaded successfully.")
     time.sleep(1)
+
+# Text Preprocessing function
+def preprocess_text(text):
+    if not isinstance(text, str) or not text.strip():
+        return ""
+    text = text.lower()
+    text = re.sub(r'[^a-zA-Z\s]', '', text)
+    tokens = word_tokenize(text)
+    tokens = [word for word in tokens if word not in nltk.corpus.stopwords.words('english')]
+    stemmer = PorterStemmer()
+    tokens = [stemmer.stem(word) for word in tokens]
+    return ' '.join(tokens)
+
+# ... rest of your code ...
 
 # ... rest of your code ...
 # Streamlit Page Configuration
@@ -64,16 +80,16 @@ FILE_TEXT1 = "text1.tsv"
 FILE_TEXT2 = "text2.tsv"
 
 # Text Preprocessing function
-def preprocess_text(text):
-    if not isinstance(text, str) or not text.strip():
-        return ""
-    text = text.lower()
-    text = re.sub(r'[^a-zA-Z\s]', '', text)
-    tokens = word_tokenize(text)
-    tokens = [word for word in tokens if word not in nltk.corpus.stopwords.words('english')]
-    stemmer = PorterStemmer()
-    tokens = [stemmer.stem(word) for word in tokens]
-    return ' '.join(tokens)
+# def preprocess_text(text):
+#     if not isinstance(text, str) or not text.strip():
+#         return ""
+#     text = text.lower()
+#     text = re.sub(r'[^a-zA-Z\s]', '', text)
+#     tokens = word_tokenize(text)
+#     tokens = [word for word in tokens if word not in nltk.corpus.stopwords.words('english')]
+#     stemmer = PorterStemmer()
+#     tokens = [stemmer.stem(word) for word in tokens]
+#     return ' '.join(tokens)
 
 # Load and preprocess datasets
 @st.cache_data
