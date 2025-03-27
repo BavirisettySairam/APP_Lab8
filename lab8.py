@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import re
 import nltk
+import os
 import matplotlib.pyplot as plt
 import seaborn as sns
 from wordcloud import WordCloud
@@ -12,9 +13,17 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import PorterStemmer
 
-# Download necessary NLTK resources
-nltk.download('stopwords')
-nltk.download('punkt')
+# Define the path for storing NLTK data locally
+NLTK_PATH = os.path.join(os.getcwd(), "nltk_data")
+
+# Ensure the directory exists
+if not os.path.exists(NLTK_PATH):
+    os.makedirs(NLTK_PATH)
+
+# Set the NLTK data path & force download
+nltk.data.path.append(NLTK_PATH)
+nltk.download('stopwords', download_dir=NLTK_PATH)
+nltk.download('punkt', download_dir=NLTK_PATH)
 
 # Streamlit Page Configuration
 st.set_page_config(page_title="Lab 8", page_icon="📊", layout="centered")
