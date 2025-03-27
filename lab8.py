@@ -25,6 +25,7 @@ nltk.data.path.append(NLTK_PATH)
 # Download required datasets to the temporary directory
 try:
     punkt_path = os.path.join(NLTK_PATH, 'tokenizers/punkt/english.pickle')
+    print(f"Attempting to load Punkt tokenizer from: {punkt_path}")
     tokenizer = PunktTokenizer(punkt_path)
     print("Punkt tokenizer loaded successfully.")
 except Exception as e:
@@ -32,6 +33,8 @@ except Exception as e:
     nltk.download('punkt', download_dir=NLTK_PATH)
     time.sleep(1)
     punkt_path = os.path.join(NLTK_PATH, 'tokenizers/punkt/english.pickle')
+    print(f"Attempting to load Punkt tokenizer from: {punkt_path}")
+    print(f"Contents of {os.path.join(NLTK_PATH, 'tokenizers/punkt/')}: {os.listdir(os.path.join(NLTK_PATH, 'tokenizers/punkt/'))}") #print contents of the punkt folder.
     tokenizer = PunktTokenizer(punkt_path)
     print("Punkt tokenizer loaded successfully after download.")
 
@@ -44,6 +47,7 @@ except LookupError:
     print("stopwords downloaded successfully.")
     time.sleep(1)
 
+# ... rest of your code ...
 # Streamlit Page Configuration
 st.set_page_config(page_title="Lab 8", page_icon="📊", layout="centered")
 
