@@ -12,31 +12,34 @@ from sklearn.metrics.pairwise import cosine_similarity
 from nltk.tokenize import word_tokenize, PunktTokenizer
 from nltk.stem import PorterStemmer
 import time
+import urllib.request # Import urllib to download file.
 
 # Set a temporary directory for NLTK data (works in Streamlit Cloud)
 NLTK_PATH = "/tmp/nltk_data"
 
 # Ensure the directory exists
 os.makedirs(NLTK_PATH, exist_ok=True)
+os.makedirs(os.path.join(NLTK_PATH, 'tokenizers/punkt'), exist_ok=True) #make sure the punkt folder exists.
 
 # Append the path to nltk data
 nltk.data.path.append(NLTK_PATH)
 
-# Download required datasets to the temporary directory
+# Download english.pickle directly
+punkt_url = "https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/tokenizers/punkt/english.pickle"
+punkt_path = os.path.join(NLTK_PATH, 'tokenizers/punkt/english.pickle')
+
 try:
-    punkt_path = os.path.join(NLTK_PATH, 'tokenizers/punkt/english.pickle')
-    print(f"Attempting to load Punkt tokenizer from: {punkt_path}")
+    if not os.path.exists(punkt_path):
+        print(f"Downloading english.pickle from: {punkt_url}")
+        urllib.request.urlretrieve(punkt_url, punkt_path)
+        print(f"english.pickle downloaded to: {punkt_path}")
+    else:
+        print(f"english.pickle already exists at: {punkt_path}")
+    
     tokenizer = PunktTokenizer(punkt_path)
     print("Punkt tokenizer loaded successfully.")
 except Exception as e:
     print(f"Error loading Punkt tokenizer: {e}")
-    nltk.download('punkt', download_dir=NLTK_PATH)
-    time.sleep(1)
-    punkt_path = os.path.join(NLTK_PATH, 'tokenizers/punkt/english.pickle')
-    print(f"Attempting to load Punkt tokenizer from: {punkt_path}")
-    print(f"Contents of {os.path.join(NLTK_PATH, 'tokenizers/punkt/')}: {os.listdir(os.path.join(NLTK_PATH, 'tokenizers/punkt/'))}") #print contents of the punkt folder.
-    tokenizer = PunktTokenizer(punkt_path)
-    print("Punkt tokenizer loaded successfully after download.")
 
 try:
     nltk.data.find('stopwords')
