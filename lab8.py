@@ -12,17 +12,19 @@ from sklearn.metrics.pairwise import cosine_similarity
 from nltk.tokenize import word_tokenize
 from nltk.stem import PorterStemmer
 
-# Ensure required NLTK datasets are downloaded
-def download_nltk_data():
-    nltk_packages = ["stopwords", "punkt"]
-    for package in nltk_packages:
-        try:
-            nltk.data.find(f'tokenizers/{package}')
-        except LookupError:
-            nltk.download(package)
 
-download_nltk_data()
-from nltk.corpus import stopwords
+# Set a temporary directory for NLTK data (works in Streamlit Cloud)
+NLTK_PATH = "/tmp/nltk_data"
+
+# Ensure the directory exists
+os.makedirs(NLTK_PATH, exist_ok=True)
+
+# Append the path to nltk data
+nltk.data.path.append(NLTK_PATH)
+
+# Download required datasets to the temporary directory
+nltk.download('stopwords', download_dir=NLTK_PATH)
+nltk.download('punkt', download_dir=NLTK_PATH)
 
 # Streamlit Page Configuration
 st.set_page_config(page_title="Lab 8", page_icon="📊", layout="centered")
