@@ -11,7 +11,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from nltk.tokenize import word_tokenize
 from nltk.stem import PorterStemmer
-
+import time
 
 # Set a temporary directory for NLTK data (works in Streamlit Cloud)
 NLTK_PATH = "/tmp/nltk_data"
@@ -23,8 +23,23 @@ os.makedirs(NLTK_PATH, exist_ok=True)
 nltk.data.path.append(NLTK_PATH)
 
 # Download required datasets to the temporary directory
-nltk.download('stopwords', download_dir=NLTK_PATH)
-nltk.download('punkt', download_dir=NLTK_PATH)
+try:
+    nltk.data.find('tokenizers/punkt')
+    print("Punkt tokenizer already downloaded.")
+except LookupError:
+    print("Downloading Punkt tokenizer...")
+    nltk.download('punkt', download_dir=NLTK_PATH)
+    print("Punkt tokenizer downloaded successfully.")
+    time.sleep(1) #add a one second delay.
+
+try:
+    nltk.data.find('stopwords')
+    print("stopwords already downloaded.")
+except LookupError:
+    print("Downloading stopwords...")
+    nltk.download('stopwords', download_dir=NLTK_PATH)
+    print("stopwords downloaded successfully.")
+    time.sleep(1) #add a one second delay.
 
 # Streamlit Page Configuration
 st.set_page_config(page_title="Lab 8", page_icon="📊", layout="centered")
@@ -40,10 +55,12 @@ FILE_TEXT2 = "text2.tsv"
 
 # Text Preprocessing function
 def preprocess_text(text):
+    if not isinstance(text, str) or not text.strip(): #check for empty or non string.
+        return ""
     text = text.lower()
     text = re.sub(r'[^a-zA-Z\s]', '', text)
     tokens = word_tokenize(text)
-    tokens = [word for word in tokens if word not in stopwords.words('english')]
+    tokens = [word for word in tokens if word not in nltk.corpus.stopwords.words('english')]
     stemmer = PorterStemmer()
     tokens = [stemmer.stem(word) for word in tokens]
     return ' '.join(tokens)
@@ -93,7 +110,7 @@ if show_similarity:
 
     st.subheader("📏 Cosine Similarity Scores")
     st.write(pd.DataFrame(cos_sim, index=[f"T1-{i+1}" for i in range(len(df_text1))], 
-                        columns=[f"T2-{i+1}" for i in range(len(df_text2))]))
+                            columns=[f"T2-{i+1}" for i in range(len(df_text2))]))
 
     # Compute Jaccard Similarity
     def jaccard_similarity(set1, set2):
